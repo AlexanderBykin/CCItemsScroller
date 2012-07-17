@@ -119,7 +119,7 @@ enum
     CCTouchDispatcher *dispatcher = [[CCDirector sharedDirector] touchDispatcher];
     int priority = INT_MIN - 1;
     
-    [dispatcher addTargetedDelegate:self priority:priority swallowsTouches:NO];
+    [dispatcher addTargetedDelegate:self priority:priority swallowsTouches:_isSwallowTouches];
 }
 
 -(BOOL) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
