@@ -174,10 +174,6 @@
     CCDirector *director =  (CCDirector*)[CCDirector sharedDirector];
     [[director touchDispatcher] removeDelegate:self];
 	[[director touchDispatcher] addTargetedDelegate:self priority:priority  swallowsTouches:YES];
-
-    NSLog(@"Setting up mouse events...");
-    [[[CCDirector sharedDirector] eventDispatcher] removeMouseDelegate:self];
-    [[[CCDirector sharedDirector] eventDispatcher] addMouseDelegate:self priority:priority];
     
     //CMLog(@"...%s...", __PRETTY_FUNCTION__);
 	[super onEnterTransitionDidFinish];
