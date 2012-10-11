@@ -35,7 +35,6 @@
         _isDragging = NO;
         _isFingerMoved = NO;
         _isAnimationEnabled = NO;
-        
 
         _lastPos = CGPointZero;
         _velPos = CGPointZero;
