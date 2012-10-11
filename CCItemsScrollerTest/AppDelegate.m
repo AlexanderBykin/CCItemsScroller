@@ -9,20 +9,25 @@
 #import "cocos2d.h"
 
 #import "AppDelegate.h"
+
+#ifdef __CC_PLATFORM_IOS
 #import "IntroLayer.h"
+#elif defined (__CC_PLATFORM_MAC)
+#import "HelloWorldLayer.h"
+#endif
 
 @implementation AppController
 
-@synthesize window=window_, navController=navController_, director=director_;
+#ifdef __CC_PLATFORM_IOS
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 	// Create the main window
-	window_ = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+	_window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
 
 	// Create an CCGLView with a RGB565 color buffer, and a depth buffer of 0-bits
-	CCGLView *glView = [CCGLView viewWithFrame:[window_ bounds]
+	CCGLView *glView = [CCGLView viewWithFrame:[_window bounds]
 								   pixelFormat:kEAGLColorFormatRGB565	//kEAGLColorFormatRGBA8
 								   depthFormat:0	//GL_DEPTH_COMPONENT24_OES
 							preserveBackbuffer:NO
@@ -30,28 +35,28 @@
 								 multiSampling:NO
 							   numberOfSamples:0];
 
-	director_ = (CCDirectorIOS*) [CCDirector sharedDirector];
+	_director = (CCDirectorIOS*) [CCDirector sharedDirector];
 
-	director_.wantsFullScreenLayout = YES;
+	_director.wantsFullScreenLayout = YES;
 
 	// Display FSP and SPF
-	[director_ setDisplayStats:YES];
+	[_director setDisplayStats:YES];
 
 	// set FPS at 60
-	[director_ setAnimationInterval:1.0/60];
+	[_director setAnimationInterval:1.0/60];
 
 	// attach the openglView to the director
-	[director_ setView:glView];
+	[_director setView:glView];
 
 	// for rotation and other messages
-	[director_ setDelegate:self];
+	[_director setDelegate:self];
 
 	// 2D projection
-	[director_ setProjection:kCCDirectorProjection2D];
+	[_director setProjection:kCCDirectorProjection2D];
 //	[director setProjection:kCCDirectorProjection3D];
 
 	// Enables High Res mode (Retina Display) on iPhone 4 and maintains low res on all other devices
-	if( ! [director_ enableRetinaDisplay:YES] )
+	if( ! [_director enableRetinaDisplay:YES] )
 		CCLOG(@"Retina Display Not supported");
 
 	// Default texture format for PNG/BMP/TIFF/JPEG/GIF images
@@ -73,19 +78,19 @@
 	[CCTexture2D PVRImagesHavePremultipliedAlpha:YES];
 
 	// and add the scene to the stack. The director will run it when it automatically when the view is displayed.
-	[director_ pushScene: [IntroLayer scene]]; 
+	[_director pushScene: [IntroLayer scene]]; 
 
 	
 	// Create a Navigation Controller with the Director
-	navController_ = [[UINavigationController alloc] initWithRootViewController:director_];
-	navController_.navigationBarHidden = YES;
+	_navController = [[UINavigationController alloc] initWithRootViewController:_director];
+	_navController.navigationBarHidden = YES;
 	
 	// set the Navigation Controller as the root view controller
-//	[window_ addSubview:navController_.view];	// Generates flicker.
-	[window_ setRootViewController:navController_];
+//	[_window addSubview:_navController.view];	// Generates flicker.
+	[_window setRootViewController:_navController];
 	
 	// make main window visible
-	[window_ makeKeyAndVisible];
+	[_window makeKeyAndVisible];
 	
 	return YES;
 }
@@ -100,27 +105,27 @@
 // getting a call, pause the game
 -(void) applicationWillResignActive:(UIApplication *)application
 {
-	if( [navController_ visibleViewController] == director_ )
-		[director_ pause];
+	if( [_navController visibleViewController] == _director )
+		[_director pause];
 }
 
 // call got rejected
 -(void) applicationDidBecomeActive:(UIApplication *)application
 {
-	if( [navController_ visibleViewController] == director_ )
-		[director_ resume];
+	if( [_navController visibleViewController] == _director )
+		[_director resume];
 }
 
 -(void) applicationDidEnterBackground:(UIApplication*)application
 {
-	if( [navController_ visibleViewController] == director_ )
-		[director_ stopAnimation];
+	if( [_navController visibleViewController] == _director )
+		[_director stopAnimation];
 }
 
 -(void) applicationWillEnterForeground:(UIApplication*)application
 {
-	if( [navController_ visibleViewController] == director_ )
-		[director_ startAnimation];
+	if( [_navController visibleViewController] == _director )
+		[_director startAnimation];
 }
 
 // application will be killed
@@ -143,10 +148,62 @@
 
 - (void) dealloc
 {
-	[window_ release];
-	[navController_ release];
+	[_window release];
+	[_navController release];
 
 	[super dealloc];
 }
 @end
+
+#elif defined (__CC_PLATFORM_MAC) 
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
+{
+	CCDirectorMac *director = (CCDirectorMac*) [CCDirector sharedDirector];
+	
+	// enable FPS and SPF
+	[director setDisplayStats:YES];
+	
+	// connect the OpenGL view with the director
+	[director setView:_glView];
+    
+	// EXPERIMENTAL stuff.
+	// 'Effects' don't work correctly when autoscale is turned on.
+	// Use kCCDirectorResize_NoScale if you don't want auto-scaling.
+	[director setResizeMode:kCCDirectorResize_AutoScale];
+	
+	// Enable "moving" mouse event. Default no.
+	[_window setAcceptsMouseMovedEvents:NO];
+	
+	// Center main window
+	[_window center];
+    
+	CCScene *scene = [CCScene node];
+	[scene addChild:[HelloWorldLayer node]];
+	
+	[director runWithScene:scene];
+}
+
+- (BOOL) applicationShouldTerminateAfterLastWindowClosed: (NSApplication *) theApplication
+{
+	return YES;
+}
+
+- (void)dealloc
+{
+	[[CCDirector sharedDirector] end];
+    
+    [super dealloc];
+}
+
+#pragma mark AppDelegate - IBActions
+
+- (IBAction)toggleFullScreen: (id)sender
+{
+	CCDirectorMac *director = (CCDirectorMac*) [CCDirector sharedDirector];
+	[director setFullScreen: ! [director isFullScreen] ];
+}
+@end
+
+#endif
 

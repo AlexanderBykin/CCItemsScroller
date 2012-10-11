@@ -13,10 +13,6 @@
     CGPoint _beginTouch;
 }
 
-@synthesize isSelected = _isSelected;
-@synthesize normalColor = _normalColor;
-@synthesize selectedColor = _selectedColor;
-
 -(id)initWithNormalColor:(ccColor4B)normalColor andSelectectedColor:(ccColor4B)selectedColor andWidth:(GLfloat)w andHeight:(GLfloat)h{
     self = [super initWithColor:normalColor width:w height:h];
     

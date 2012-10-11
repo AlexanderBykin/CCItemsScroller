@@ -29,6 +29,10 @@
 	if(self) {
 		CGSize winSize = [[CCDirector sharedDirector] winSize];
         
+#ifdef __CC_PLATFORM_MAC
+        self.isMouseEnabled = YES;
+#endif
+        
         CCLayerColor *bg = [CCLayerColor layerWithColor:ccc4(165, 0, 12, 255) width:winSize.width height:winSize.height];
         [self addChild:bg];
         
