@@ -18,6 +18,7 @@ typedef enum{
 #ifdef __CC_PLATFORM_MAC
 {
     BOOL activatedEvent;
+    CGPoint _clickedPoint;
 }
 #endif
 

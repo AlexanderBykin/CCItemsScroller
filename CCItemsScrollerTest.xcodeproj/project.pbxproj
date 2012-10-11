@@ -73,24 +73,11 @@
 		E605126716272E4900D6140A /* bullet1.png in Resources */ = {isa = PBXBuildFile; fileRef = D3CF962315B5BEB70041FE53 /* bullet1.png */; };
 		E605126816272E4900D6140A /* bullet2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = D3CF962415B5BEB70041FE53 /* bullet2-hd.png */; };
 		E605126916272E4900D6140A /* bullet2.png in Resources */ = {isa = PBXBuildFile; fileRef = D3CF962515B5BEB70041FE53 /* bullet2.png */; };
+		E60512701627749300D6140A /* CCItemsScroller.m in Sources */ = {isa = PBXBuildFile; fileRef = D3CF962715B5BEB70041FE53 /* CCItemsScroller.m */; };
+		E60512711627749300D6140A /* CCSelectableItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D3CF962915B5BEB70041FE53 /* CCSelectableItem.m */; };
+		E60512721627749800D6140A /* CCItemsScroller.m in Sources */ = {isa = PBXBuildFile; fileRef = D3CF962715B5BEB70041FE53 /* CCItemsScroller.m */; };
+		E60512731627749800D6140A /* CCSelectableItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D3CF962915B5BEB70041FE53 /* CCSelectableItem.m */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		E605126C16273B8F00D6140A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D3CF947D15B5BE130041FE53 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E605122816271CC000D6140A;
-			remoteInfo = CCItemsScrollerMac_script;
-		};
-		E605126E16273E7100D6140A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D3CF947D15B5BE130041FE53 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E605120916271C9600D6140A;
-			remoteInfo = CCItemsScroller_script;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		D3CF948615B5BE140041FE53 /* CCItemsScrollerTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CCItemsScrollerTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -132,7 +119,6 @@
 		D3CF962915B5BEB70041FE53 /* CCSelectableItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCSelectableItem.m; sourceTree = "<group>"; };
 		D3CF962A15B5BEB70041FE53 /* HelloWorldLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelloWorldLayer.h; sourceTree = "<group>"; };
 		D3CF962B15B5BEB70041FE53 /* HelloWorldLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelloWorldLayer.m; sourceTree = "<group>"; };
-		E605119F162713A900D6140A /* CCItemsScrollerTest copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "CCItemsScrollerTest copy-Info.plist"; path = "/Users/Panajev/Programming/workspace/iPhoneTest/iPad_Projects/iPad_Omino/SharedLibsDevelopment/CCItemsScroller/CCItemsScrollerTest copy-Info.plist"; sourceTree = "<absolute>"; };
 		E60511A5162713DE00D6140A /* CCItemsScrollerTestMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CCItemsScrollerTestMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E60511CE162714E400D6140A /* InfoPlist.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = InfoPlist.strings; sourceTree = "<group>"; };
 		E60511DB16271A5C00D6140A /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -234,7 +220,6 @@
 				D3CF949C15B5BE140041FE53 /* CCItemsScrollerTest */,
 				D3CF948915B5BE140041FE53 /* Frameworks */,
 				D3CF948715B5BE140041FE53 /* Products */,
-				E605119F162713A900D6140A /* CCItemsScrollerTest copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -371,7 +356,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E605126F16273E7100D6140A /* PBXTargetDependency */,
 			);
 			name = CCItemsScrollerTest;
 			productName = CCItemsScrollerTest;
@@ -389,7 +373,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E605126D16273B8F00D6140A /* PBXTargetDependency */,
 			);
 			name = CCItemsScrollerTestMac;
 			productName = CCItemsScrollerTestMac;
@@ -576,6 +559,8 @@
 			files = (
 				E6051252162721E200D6140A /* IntroLayer.m in Sources */,
 				D3CF961315B5BE170041FE53 /* main.m in Sources */,
+				E60512721627749800D6140A /* CCItemsScroller.m in Sources */,
+				E60512731627749800D6140A /* CCSelectableItem.m in Sources */,
 				D3CF961615B5BE170041FE53 /* AppDelegate.m in Sources */,
 				D3CF963215B5BEB70041FE53 /* HelloWorldLayer.m in Sources */,
 			);
@@ -586,6 +571,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				E60511D41627151700D6140A /* HelloWorldLayer.m in Sources */,
+				E60512701627749300D6140A /* CCItemsScroller.m in Sources */,
+				E60512711627749300D6140A /* CCSelectableItem.m in Sources */,
 				E60511D71627156000D6140A /* main.m in Sources */,
 				E60511D51627151700D6140A /* AppDelegate.m in Sources */,
 			);
@@ -610,19 +597,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		E605126D16273B8F00D6140A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E605122816271CC000D6140A /* CCItemsScrollerMac_script */;
-			targetProxy = E605126C16273B8F00D6140A /* PBXContainerItemProxy */;
-		};
-		E605126F16273E7100D6140A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E605120916271C9600D6140A /* CCItemsScroller_script */;
-			targetProxy = E605126E16273E7100D6140A /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D3CF961D15B5BE170041FE53 /* Debug */ = {
@@ -682,7 +656,6 @@
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lCocos",
-					"-lCCItemsScroller",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "~/Programming/SharedLibs/CCItemsScroller/include/**";
@@ -706,7 +679,6 @@
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lCocos",
-					"-lCCItemsScroller",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "~/Programming/SharedLibs/CCItemsScroller/include/**";
@@ -748,7 +720,6 @@
 				OTHER_LDFLAGS = (
 					"-lCocosMac",
 					"-lz",
-					"-lCCItemsScrollerMac",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -787,7 +758,6 @@
 				OTHER_LDFLAGS = (
 					"-lCocosMac",
 					"-lz",
-					"-lCCItemsScrollerMac",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
