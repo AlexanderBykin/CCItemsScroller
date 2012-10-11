@@ -15,6 +15,7 @@
     NSInteger _lastSelectedIndex;
     BOOL _isDragging;
     BOOL _isFingerMoved;
+    BOOL _isAnimationEnabled;
     CGPoint _lastPos;
     CGPoint _velPos;
 }
@@ -37,6 +38,7 @@
         
         _isDragging = NO;
         _isFingerMoved = NO;
+        _isAnimationEnabled = NO;
         _lastPos = CGPointZero;
         _velPos = CGPointZero;
         
@@ -50,6 +52,10 @@
 }
 
 -(void)moveTick:(ccTime)delta{
+    if(_isAnimationEnabled == NO){
+        return;
+    }
+    
     float friction = 0.95f;
     
     if(_isDragging == NO){
@@ -60,9 +66,13 @@
             _offset.x += _velPos.x;
             
             if(_offset.x > _rect.origin.x){
+                _isAnimationEnabled = NO;
+                _velPos.x *= -1;
                 _offset.x = _rect.origin.x;
             }
             else if(_offset.x < -(self.contentSize.width-_rect.size.width-_rect.origin.x)){
+                _isAnimationEnabled = NO;
+                _velPos.x *= -1;
                 _offset.x = -(self.contentSize.width-_rect.size.width-_rect.origin.x);
             }
         }
@@ -71,14 +81,15 @@
             _offset.y += _velPos.y;
             
             if (_offset.y > _rect.origin.y) {
+                _isAnimationEnabled = NO;
                 _velPos.y *= -1;
                 _offset.y = _rect.origin.y;
-            }else{
-                if (_offset.y < -(self.contentSize.height-_rect.size.height-_rect.origin.y))
-                {
-                    _velPos.y *= -1;
-                    _offset.y = -(self.contentSize.height-_rect.size.height-_rect.origin.y);
-                }
+            }
+            else if (_offset.y < -(self.contentSize.height-_rect.size.height-_rect.origin.y))
+            {
+                _isAnimationEnabled = NO;
+                _velPos.y *= -1;
+                _offset.y = -(self.contentSize.height-_rect.size.height-_rect.origin.y);
             }
         }        
 		
@@ -235,6 +246,8 @@
 
 -(void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event{
     _isDragging = NO;
+    
+    _isAnimationEnabled = _isFingerMoved;
     
     // Finger moved, do not select item
     if(_isFingerMoved == YES){
