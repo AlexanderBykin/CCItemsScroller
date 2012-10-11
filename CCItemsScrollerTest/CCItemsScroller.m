@@ -7,19 +7,16 @@
 
 #import "CCItemsScroller.h"
 
-enum
-{
-    kCCScrollLayerStateIdle,
-    kCCScrollLayerStateSliding
-};
-
 @implementation CCItemsScroller{
     CGRect _rect;
-    int _state;
     CGPoint _startSwipe;
     CGPoint _offset;
     CGSize _itemSize;
     NSInteger _lastSelectedIndex;
+    BOOL _isDragging;
+    BOOL _isFingerMoved;
+    CGPoint _lastPos;
+    CGPoint _velPos;
 }
 
 @synthesize delegate = _delegate;
@@ -38,11 +35,61 @@ enum
         _orientation = orientation;
         _isSwallowTouches = YES;
         
+        _isDragging = NO;
+        _isFingerMoved = NO;
+        _lastPos = CGPointZero;
+        _velPos = CGPointZero;
+        
         self.isTouchEnabled = YES;
         [self updateItems:items];
+        
+        [self schedule:@selector(moveTick:)];
     }
     
     return self;
+}
+
+-(void)moveTick:(ccTime)delta{
+    float friction = 0.95f;
+    
+    if(_isDragging == NO){
+        // inertia
+        _velPos = CGPointMake(_velPos.x*friction, _velPos.y*friction);
+        
+        if(_orientation == CCItemsScrollerHorizontal){
+            _offset.x += _velPos.x;
+            
+            if(_offset.x > _rect.origin.x){
+                _offset.x = _rect.origin.x;
+            }
+            else if(_offset.x < -(self.contentSize.width-_rect.size.width-_rect.origin.x)){
+                _offset.x = -(self.contentSize.width-_rect.size.width-_rect.origin.x);
+            }
+        }
+        
+        if(_orientation == CCItemsScrollerVertical){
+            _offset.y += _velPos.y;
+            
+            if (_offset.y > _rect.origin.y) {
+                _velPos.y *= -1;
+                _offset.y = _rect.origin.y;
+            }else{
+                if (_offset.y < -(self.contentSize.height-_rect.size.height-_rect.origin.y))
+                {
+                    _velPos.y *= -1;
+                    _offset.y = -(self.contentSize.height-_rect.size.height-_rect.origin.y);
+                }
+            }
+        }        
+		
+		self.position = ccp(_offset.x, _offset.y);
+    }
+    else
+	{
+        _velPos.x = ( self.position.x - _lastPos.x ) / 2;
+		_velPos.y = ( self.position.y - _lastPos.y ) / 2;
+		_lastPos = CGPointMake(self.position.x, self.position.y);
+	}
 }
 
 -(void)updateItems:(NSArray*)items{
@@ -76,7 +123,9 @@ enum
         }
         
         if(_orientation == CCItemsScrollerVertical){
-            y = (i * item.contentSize.height);
+            CGFloat itemOffsetY = (i+1) * item.contentSize.height;
+            NSLog(@"Item %d offsetY='%f'", i, itemOffsetY);
+            y = self.contentSize.height - itemOffsetY;
         }
         
         item.tag = i;
@@ -130,8 +179,11 @@ enum
     // Swallow touches
     BOOL result = (CGRectContainsPoint(_rect, touchPoint) || !_isSwallowTouches);
     
-    if(result)
-        _state = kCCScrollLayerStateIdle;    
+    _isDragging = result;
+    
+    _startSwipe = CGPointMake(_offset.x - touchPoint.x, _offset.y - touchPoint.y);
+    
+    _isFingerMoved = NO;
     
     return result;    
 }
@@ -141,17 +193,7 @@ enum
     CGPoint touchPoint = [touch locationInView:[touch view]];
     touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];    
     
-    if ( _state != kCCScrollLayerStateSliding )
-    {
-        _state = kCCScrollLayerStateSliding;
-        
-        _startSwipe = CGPointMake(_offset.x - touchPoint.x, _offset.y - touchPoint.y);
-        
-        if ([_delegate respondsToSelector:@selector(scrollLayerScrollingStarted:)])
-            [_delegate itemsScrollerScrollingStarted:self];
-    }
-    
-    if (_state == kCCScrollLayerStateSliding)
+    if (_isDragging == YES)
     {
         if(_orientation == CCItemsScrollerHorizontal){
             _offset.x = _startSwipe.x + touchPoint.x;
@@ -183,11 +225,22 @@ enum
             }
         }
         
+        if(self.position.x != _offset.x || self.position.y != _offset.y){
+            _isFingerMoved = YES;
+        }
+        
         self.position = ccp(_offset.x, _offset.y);
     }
 }
 
 -(void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event{
+    _isDragging = NO;
+    
+    // Finger moved, do not select item
+    if(_isFingerMoved == YES){
+        return;
+    }
+    
     CGPoint touchPoint = [touch locationInView:[touch view]];
     touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];    
     
@@ -222,11 +275,11 @@ enum
         }
         
         if(isX && isY){
-            [self setSelectedItemIndex:item.tag];
-            
+            [self setSelectedItemIndex:item.tag];            
             break;
         }
     }
+    
 }
 
 -(void)setSelectedItemIndex:(NSInteger)index{
@@ -236,6 +289,10 @@ enum
     if([lastSelectedChild respondsToSelector:@selector(setIsSelected:)])
     {
         [lastSelectedChild setIsSelected:NO];
+        
+        if([_delegate respondsToSelector:@selector(itemsScroller:didUnSelectItemIndex:)]){
+            [_delegate itemsScroller:self didUnSelectItemIndex:_lastSelectedIndex];
+        }
     }
     
     if([currentChild respondsToSelector:@selector(setIsSelected:)]){
@@ -246,6 +303,10 @@ enum
     
     if([_delegate respondsToSelector:@selector(itemsScroller:didSelectItemIndex:)])
         [_delegate itemsScroller:self didSelectItemIndex:index];
+}
+
+-(CCNode*) getItemWithIndex:(int)index{
+    return [self getChildByTag:index];
 }
 
 @end

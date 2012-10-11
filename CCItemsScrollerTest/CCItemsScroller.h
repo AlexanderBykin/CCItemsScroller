@@ -28,20 +28,15 @@ typedef enum{
 
 @end
 
-
-// Items scroller delegate for catch event 
+// Items scroller delegate for catch event
 @protocol CCItemsScrollerDelegate <NSObject>
 
 @required
 
 - (void)itemsScroller:(CCItemsScroller *)sender didSelectItemIndex:(int)index;
-
-@optional
-
-- (void)itemsScrollerScrollingStarted:(CCItemsScroller *)sender;
+- (void)itemsScroller:(CCItemsScroller *)sender didUnSelectItemIndex:(int)index;
 
 @end
-
 
 // Selectable item protocol, inherit it to implement your unique selectable items
 @protocol CCSelectableItemDelegate <NSObject>
