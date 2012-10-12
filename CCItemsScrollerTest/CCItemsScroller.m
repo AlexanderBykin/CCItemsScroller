@@ -20,6 +20,8 @@
     CGPoint _velPos;
 }
 
+@synthesize delegate=_delegate, orientation=_orientation, isSwallowTouches=_isSwallowTouches;
+
 +(id)itemsScrollerWithItems:(NSArray *)items andOrientation:(CCItemsScrollerOrientations)orientation andRect:(CGRect)rect{
     return [[self alloc] initWithItems:items andOrientation:(CCItemsScrollerOrientations)orientation andRect:rect];
 }
