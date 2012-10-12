@@ -7,6 +7,8 @@
 
 #import "CCItemsScroller.h"
 
+#define MAX_VEL (5.0f)
+
 @implementation CCItemsScroller{
     CGRect _rect;
     CGPoint _startSwipe;
@@ -18,8 +20,13 @@
     BOOL _isAnimationEnabled;
     CGPoint _lastPos;
     CGPoint _velPos;
-    CGPoint _clickedPoint;
+    CGPoint _clickedPoint; //location of touch begin/mouse down event
+    CGPoint _distMov;
+    CGPoint _prevMovPos;
+    CGFloat velMul;
     BOOL _activatedEvent;
+    
+    CGFloat _timeDiff, _startTime, _endTime;
 #ifdef __CC_PLATFORM_IOS
     
 #elif defined (__CC_PLATFORM_MAC)
@@ -45,16 +52,19 @@
         _isFingerMoved = NO;
         _isAnimationEnabled = NO;
         _activatedEvent = NO;
-
+        
         _lastPos = CGPointZero;
         _velPos = CGPointZero;
-
+        _clickedPoint = CGPointZero;
+        _distMov = CGPointZero;
+        _prevMovPos = CGPointZero;
+        velMul = _timeDiff = _startTime = _endTime = 0.0f;
+        
 #ifdef __CC_PLATFORM_IOS
         self.isTouchEnabled = YES;
 #elif defined(__CC_PLATFORM_MAC)
         self.isMouseEnabled = YES;
         //self.isKeyboardEnabled = YES;
-        
 #endif
         [self updateItems:items];
         
@@ -69,7 +79,7 @@
         return;
     }
     
-    float friction = 0.95f;
+    CGFloat friction = 0.95f;
     
     if(_isDragging == NO){
         // inertia
@@ -110,7 +120,7 @@
                 _offset.y = -(self.contentSize.height-_rect.size.height-_rect.origin.y);
                 moveTo = [CCMoveTo actionWithDuration:0.3f position:CGPointMake(_offset.x, -(self.contentSize.height-_rect.size.height-_rect.origin.y))];
             }
-        }        
+        }
         
         if(moveTo == nil){
             self.position = ccp(_offset.x, _offset.y);
@@ -123,6 +133,10 @@
     {
         _velPos.x = ( self.position.x - _lastPos.x ) / 2;
         _velPos.y = ( self.position.y - _lastPos.y ) / 2;
+        
+        _velPos = ccpMult(_velPos,velMul);
+        NSLog(@"_timeDiff: %.2f, velMul: %.2f", _timeDiff, velMul);
+        
         _lastPos = CGPointMake(self.position.x, self.position.y);
     }
 }
@@ -219,7 +233,7 @@
 -(BOOL) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
 {
     CGPoint touchPoint = [touch locationInView:[touch view]];
-    touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];    
+    touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];
     
     // Swallow touches
     BOOL result = (CGRectContainsPoint(_rect, touchPoint) || !_isSwallowTouches);
@@ -230,16 +244,28 @@
     
     _isFingerMoved = NO;
     
+    _startTime = CACurrentMediaTime();
     _clickedPoint = touchPoint;
     _activatedEvent = result;
     
-    return result;    
+    return result;
 }
 
 - (void)ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event
 {
     CGPoint touchPoint = [touch locationInView:[touch view]];
-    touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];    
+    touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];
+    
+    _distMov = ccpSub(touchPoint, _prevMovPos);
+    _endTime = CACurrentMediaTime();
+    _timeDiff = _endTime - _startTime;
+    
+    _timeDiff = MAX(_timeDiff, 0.35f);
+    
+    CGFloat distCovered = ABS(ccpLengthSQ(_distMov));
+    velMul = ((distCovered/(_timeDiff*_timeDiff))/10000.0f);
+    velMul = MAX(velMul, 1.0f);
+    velMul = MIN(velMul, MAX_VEL);
     
     if (_isDragging == YES)
     {
@@ -260,6 +286,9 @@
     else {
         _isFingerMoved = NO;
     }
+    
+    _prevMovPos = touchPoint;
+    _startTime = _endTime;
 }
 
 -(void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event{
@@ -272,7 +301,7 @@
     }
     
     CGPoint touchPoint = [touch locationInView:[touch view]];
-    touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];    
+    touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];
     
     CGFloat touchX = 0;
     CGFloat touchY = 0;
@@ -299,13 +328,13 @@
             isY = (touchY >= self.position.y && touchY <= self.position.y + item.contentSize.height);
         }
         
-        if(_orientation == CCItemsScrollerVertical){        
+        if(_orientation == CCItemsScrollerVertical){
             isX = (touchX >= item.position.x && touchX <= item.contentSize.width);
             isY = (touchY >= item.position.y && touchY <= item.position.y + item.contentSize.height);
         }
         
         if(isX && isY && !_isFingerMoved && _activatedEvent){
-            [self setSelectedItemIndex:item.tag];            
+            [self setSelectedItemIndex:item.tag];
             break;
         }
     }
@@ -325,9 +354,9 @@
     
     _isFingerMoved = NO;
     
-    _activatedEvent = result;
-    
+    _startTime = CACurrentMediaTime();
     _clickedPoint = location;
+    _activatedEvent = result;
     
     return result;
     
@@ -335,6 +364,17 @@
 
 -(BOOL) ccMouseDragged:(NSEvent *)event {
     CGPoint location = [(CCDirectorMac*)[CCDirector sharedDirector] convertEventToGL:event];
+    
+    _distMov = ccpSub(location, _prevMovPos);
+    _endTime = CACurrentMediaTime();
+    _timeDiff = _endTime - _startTime;
+    
+    _timeDiff = MAX(_timeDiff, 0.35f);
+    
+    CGFloat distCovered = ABS(ccpLengthSQ(_distMov));
+    velMul = ((distCovered/(_timeDiff*_timeDiff))/10000.0f);
+    velMul = MAX(velMul, 1.0f);
+    velMul = MIN(velMul, MAX_VEL);
     
     if (_isDragging == YES)
     {
@@ -360,8 +400,7 @@
 }
 
 -(BOOL) ccMouseUp:(NSEvent*)event {
-    //NSAssert(state == kBoxStateGrabbed, @"Paddle - Unexpected state!");
-    NSLog(@"mouseUp");
+    //NSLog(@"mouseUp");
     
     _isDragging = NO;
     _isAnimationEnabled = _isFingerMoved;
