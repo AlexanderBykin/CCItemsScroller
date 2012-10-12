@@ -66,7 +66,7 @@
         
         pageArray = [NSMutableArray array];
         
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 400; i++) {
             CCSelectableItem *page = [[CCSelectableItem alloc] initWithNormalColor:ccc4(150, 150, 150, 125) andSelectectedColor:ccc4(190, 150, 150, 255) andWidth:winSize.width-40 andHeight:40];
             
             CCLabelTTF *lbl = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"item #%d", i+1] fontName:@"Marker Felt" fontSize:15];
