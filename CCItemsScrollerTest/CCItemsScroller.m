@@ -35,6 +35,7 @@
         _isDragging = NO;
         _isFingerMoved = NO;
         _isAnimationEnabled = NO;
+        _activatedEvent = NO;
 
         _lastPos = CGPointZero;
         _velPos = CGPointZero;
@@ -44,7 +45,7 @@
 #elif defined(__CC_PLATFORM_MAC)
         self.isMouseEnabled = YES;
         //self.isKeyboardEnabled = YES;
-        activatedEvent = NO;
+        
 #endif
         [self updateItems:items];
         
@@ -188,33 +189,6 @@
     [dispatcher addTargetedDelegate:self priority:priority swallowsTouches:_isSwallowTouches];
 }
 
-/*
--(void) onEnterTransitionDidFinish
-{
-    int priority = INT_MIN - 1;
-    
-    NSLog(@"Setting up touch events...");
-    CCDirector *director =  (CCDirector*)[CCDirector sharedDirector];
-    [[director touchDispatcher] removeDelegate:self];
-	[[director touchDispatcher] addTargetedDelegate:self priority:priority  swallowsTouches:YES];
-    
-    //CMLog(@"...%s...", __PRETTY_FUNCTION__);
-	[super onEnterTransitionDidFinish];
-}
-
-#elif defined (__CC_PLATFORM_MAC)
--(void) onEnter
-{
-    int priority = INT_MIN - 1;
-    
-    NSLog(@"Setting up mouse events...");
-    [[[CCDirector sharedDirector] eventDispatcher] removeMouseDelegate:self];
-    [[[CCDirector sharedDirector] eventDispatcher] addMouseDelegate:self priority:priority];
-    
-    [super onEnter];
-}
- */
-
 #elif defined (__CC_PLATFORM_MAC)
 
 -(NSInteger) mouseDelegatePriority {
@@ -222,19 +196,6 @@
 }
 
 #endif
-
-/*
-- (void)onExit
-{
-#ifdef __CC_PLATFORM_IOS
-    CCDirector *director =  (CCDirector*)[CCDirector sharedDirector];
-	[[director touchDispatcher] removeDelegate:self];
-#elif defined (__CC_PLATFORM_MAC)
-    [[[CCDirector sharedDirector] eventDispatcher] removeMouseDelegate:self];
-#endif
-	[super onExit];
-}
- */
 
 #ifdef __CC_PLATFORM_IOS
 -(BOOL) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
@@ -251,13 +212,14 @@
     
     _isFingerMoved = NO;
     
+    _clickedPoint = touchPoint;
+    _activatedEvent = result;
+    
     return result;    
 }
 
 - (void)ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event
 {
-    //NSLog(@"mouseDragged ... ccTouchMoved");
-    
     CGPoint touchPoint = [touch locationInView:[touch view]];
     touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];    
     
@@ -292,12 +254,15 @@
                 }
             }
         }
-        
-        if(self.position.x != _offset.x || self.position.y != _offset.y){
-            _isFingerMoved = YES;
-        }
-        
         self.position = ccp(_offset.x, _offset.y);
+    }
+    
+    CGFloat diffSQ = ccpLengthSQ(ccpSub(touchPoint, _clickedPoint));
+    if(ABS(diffSQ) >32.0f) {
+        _isFingerMoved = YES;
+    }
+    else {
+        _isFingerMoved = NO;
     }
 }
 
@@ -343,7 +308,7 @@
             isY = (touchY >= item.position.y && touchY <= item.position.y + item.contentSize.height);
         }
         
-        if(isX && isY){
+        if(isX && isY && !_isFingerMoved && _activatedEvent){
             [self setSelectedItemIndex:item.tag];            
             break;
         }
@@ -364,20 +329,15 @@
     
     _isFingerMoved = NO;
     
-    activatedEvent = result;
+    _activatedEvent = result;
     
     _clickedPoint = location;
-    
-    //NSLog(@"mouseDown");
     
     return result;
     
 }
 
 -(BOOL) ccMouseDragged:(NSEvent *)event {
-    //NSLog(@"mouseDragged");
-
-    
     CGPoint location = [(CCDirectorMac*)[CCDirector sharedDirector] convertEventToGL:event];
     
     if (_isDragging == YES)
@@ -415,9 +375,7 @@
         self.position = ccp(_offset.x, _offset.y);
     }
     
-    
     CGFloat diffSQ = ccpLengthSQ(ccpSub(location, _clickedPoint));
-    
     if(ABS(diffSQ) >32.0f) {
         _isFingerMoved = YES;
     }
@@ -465,7 +423,7 @@
             isY = (touchY >= item.position.y && touchY <= item.position.y + item.contentSize.height);
         }
         
-        if(isX && isY && !_isFingerMoved && activatedEvent ){
+        if(isX && isY && !_isFingerMoved && _activatedEvent ){
             [self setSelectedItemIndex:item.tag];
             return YES;
         }

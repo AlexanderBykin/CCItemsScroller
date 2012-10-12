@@ -15,12 +15,16 @@ typedef enum{
 @protocol CCItemsScrollerDelegate;
 
 @interface CCItemsScroller : CCLayer
-#ifdef __CC_PLATFORM_MAC
 {
-    BOOL activatedEvent;
     CGPoint _clickedPoint;
-}
+    BOOL _activatedEvent;
+#ifdef __CC_PLATFORM_IOS
+
+#elif defined (__CC_PLATFORM_MAC)
+    
 #endif
+    
+}
 
 @property (strong, nonatomic) id<CCItemsScrollerDelegate> delegate;
 @property (assign, nonatomic) CCItemsScrollerOrientations orientation;
