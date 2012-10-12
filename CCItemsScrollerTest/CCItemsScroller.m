@@ -18,6 +18,13 @@
     BOOL _isAnimationEnabled;
     CGPoint _lastPos;
     CGPoint _velPos;
+    CGPoint _clickedPoint;
+    BOOL _activatedEvent;
+#ifdef __CC_PLATFORM_IOS
+    
+#elif defined (__CC_PLATFORM_MAC)
+    
+#endif
 }
 
 @synthesize delegate=_delegate, orientation=_orientation, isSwallowTouches=_isSwallowTouches;
@@ -68,6 +75,8 @@
         // inertia
         _velPos = CGPointMake(_velPos.x*friction, _velPos.y*friction);
         
+        CCMoveTo *moveTo = nil;
+        
         if(_orientation == CCItemsScrollerHorizontal){
             _offset.x += _velPos.x;
             
@@ -75,11 +84,13 @@
                 _isAnimationEnabled = NO;
                 _velPos.x *= -1;
                 _offset.x = _rect.origin.x;
+                moveTo = [CCMoveTo actionWithDuration:0.3f position:CGPointMake(_rect.origin.x, _offset.y)];
             }
             else if(_offset.x < -(self.contentSize.width-_rect.size.width-_rect.origin.x)){
                 _isAnimationEnabled = NO;
                 _velPos.x *= -1;
                 _offset.x = -(self.contentSize.width-_rect.size.width-_rect.origin.x);
+                moveTo = [CCMoveTo actionWithDuration:0.3f position:CGPointMake(-(self.contentSize.width-_rect.size.width-_rect.origin.x), _offset.y)];
             }
         }
         
@@ -90,16 +101,23 @@
                 _isAnimationEnabled = NO;
                 _velPos.y *= -1;
                 _offset.y = _rect.origin.y;
+                moveTo = [CCMoveTo actionWithDuration:0.3f position:CGPointMake(_offset.x, _rect.origin.y)];
             }
             else if (_offset.y < -(self.contentSize.height-_rect.size.height-_rect.origin.y))
             {
                 _isAnimationEnabled = NO;
                 _velPos.y *= -1;
                 _offset.y = -(self.contentSize.height-_rect.size.height-_rect.origin.y);
+                moveTo = [CCMoveTo actionWithDuration:0.3f position:CGPointMake(_offset.x, -(self.contentSize.height-_rect.size.height-_rect.origin.y))];
             }
-        }
+        }        
         
-        self.position = ccp(_offset.x, _offset.y);
+        if(moveTo == nil){
+            self.position = ccp(_offset.x, _offset.y);
+        }
+        else {
+            [self runAction:moveTo];
+        }
     }
     else
     {
@@ -170,14 +188,12 @@
 {
     CGRect _glRect = CC_RECT_POINTS_TO_PIXELS(_rect);
     
-    //glPushMatrix();
     glEnable(GL_SCISSOR_TEST);
     glScissor(_glRect.origin.x, _glRect.origin.y, _glRect.size.width, _glRect.size.height);
     
     [super visit];
     
     glDisable(GL_SCISSOR_TEST);
-    //glPopMatrix();
 }
 
 #ifdef __CC_PLATFORM_IOS
@@ -229,32 +245,10 @@
     {
         if(_orientation == CCItemsScrollerHorizontal){
             _offset.x = _startSwipe.x + touchPoint.x;
-            
-            if(_offset.x > _rect.origin.x){
-                _offset.x = _rect.origin.x;
-            }
-            else if(_offset.x < -(self.contentSize.width-_rect.size.width-_rect.origin.x)){
-                _offset.x = -(self.contentSize.width-_rect.size.width-_rect.origin.x);
-            }
         }
         
         if(_orientation == CCItemsScrollerVertical){
             _offset.y = _startSwipe.y + touchPoint.y;
-            
-            if(_startSwipe.y < touchPoint.y){
-                if (_offset.y > _rect.origin.y) {
-                    _offset.y = _rect.origin.y;
-                }else
-                    if (_offset.y < -(self.contentSize.height-_rect.size.height-_rect.origin.y))
-                    {
-                        _offset.y = -(self.contentSize.height-_rect.size.height-_rect.origin.y);
-                    }
-            }
-            else {
-                if (_offset.y > _rect.origin.y) {
-                    _offset.y = _rect.origin.y;
-                }
-            }
         }
         self.position = ccp(_offset.x, _offset.y);
     }
@@ -346,32 +340,10 @@
     {
         if(_orientation == CCItemsScrollerHorizontal){
             _offset.x = _startSwipe.x + location.x;
-            
-            if(_offset.x > _rect.origin.x){
-                _offset.x = _rect.origin.x;
-            }
-            else if(_offset.x < -(self.contentSize.width-_rect.size.width-_rect.origin.x)){
-                _offset.x = -(self.contentSize.width-_rect.size.width-_rect.origin.x);
-            }
         }
         
         if(_orientation == CCItemsScrollerVertical){
             _offset.y = _startSwipe.y + location.y;
-            
-            if(_startSwipe.y < location.y){
-                if (_offset.y > _rect.origin.y) {
-                    _offset.y = _rect.origin.y;
-                }else
-                    if (_offset.y < -(self.contentSize.height-_rect.size.height-_rect.origin.y))
-                    {
-                        _offset.y = -(self.contentSize.height-_rect.size.height-_rect.origin.y);
-                    }
-            }
-            else {
-                if (_offset.y > _rect.origin.y) {
-                    _offset.y = _rect.origin.y;
-                }
-            }
         }
         
         self.position = ccp(_offset.x, _offset.y);
