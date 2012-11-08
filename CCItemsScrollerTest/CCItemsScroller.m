@@ -127,6 +127,24 @@
             }
         }
         
+        if(_orientation == CCItemsScrollerVertical){
+            _offset.y += _velPos.y;
+            
+            if (_offset.y > _rect.origin.y) {
+                _isAnimationEnabled = NO;
+                _velPos.y *= -1;
+                _offset.y = _rect.origin.y;
+                moveTo = [CCMoveTo actionWithDuration:0.3f position:CGPointMake(_offset.x, _rect.origin.y)];
+            }
+            else if (_offset.y < -(self.contentSize.height-_rect.size.height-_rect.origin.y))
+            {
+                _isAnimationEnabled = NO;
+                _velPos.y *= -1;
+                _offset.y = -(self.contentSize.height-_rect.size.height-_rect.origin.y);
+                moveTo = [CCMoveTo actionWithDuration:0.3f position:CGPointMake(_offset.x, -(self.contentSize.height-_rect.size.height-_rect.origin.y))];
+            }
+        }
+        
         if(moveTo == nil){
             self.position = ccp(_offset.x, _offset.y);
         }
@@ -182,11 +200,11 @@
             y = self.contentSize.height - itemOffsetY;
         }
         
-        item.tag = i;
         item.position = ccp(x, y);
         
-        if (!item.parent)
-            [self addChild:item z:i tag:i];
+        if (!item.parent) {
+            [self addChild:item];
+        }
         
         ++i;
     }
@@ -339,7 +357,7 @@
         }
         
         if(isX && isY && !_isFingerMoved && _activatedEvent){
-            [self setSelectedItemIndex:item.tag];
+            [self setSelectedItemIndex:[self.children indexOfObject:item]];
             break;
         }
     }
@@ -442,7 +460,7 @@
         }
         
         if(isX && isY && !_isFingerMoved && _activatedEvent ){
-            [self setSelectedItemIndex:item.tag];
+            [self setSelectedItemIndex:[self.children indexOfObject:item]];
             return YES;
         }
     }
@@ -452,8 +470,8 @@
 #endif
 
 -(void)setSelectedItemIndex:(NSInteger)index{
-    id currentChild = [self getChildByTag:index];
-    id lastSelectedChild = [self getChildByTag:_lastSelectedIndex];
+    id currentChild = [self.children objectAtIndex:index];
+    id lastSelectedChild = [self.children objectAtIndex:_lastSelectedIndex];
     
     if([lastSelectedChild respondsToSelector:@selector(setIsSelected:)])
     {
@@ -481,10 +499,6 @@
         [_delegate itemsScroller:self didSelectItemIndex:(int)index];
 #endif
     }
-}
-
--(CCNode*) getItemWithIndex:(int)index{
-    return [self getChildByTag:index];
 }
 
 @end
