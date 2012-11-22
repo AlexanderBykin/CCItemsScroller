@@ -239,7 +239,7 @@
 - (void)registerWithTouchDispatcher
 {
     CCTouchDispatcher *dispatcher = [[CCDirector sharedDirector] touchDispatcher];
-    int priority = INT_MIN - 1;
+    int priority = INT_MIN;
     
     [dispatcher addTargetedDelegate:self priority:priority swallowsTouches:_isSwallowTouches];
 }
@@ -247,7 +247,7 @@
 #elif defined (__CC_PLATFORM_MAC)
 
 -(NSInteger) mouseDelegatePriority {
-    return INT_MIN - 1;
+    return INT_MIN;
 }
 
 #endif
