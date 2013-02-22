@@ -80,13 +80,13 @@
 }
 
 -(void)moveTick:(ccTime)delta{
-    if(_isAnimationEnabled == NO){
-        return;
-    }
-    
     CGFloat friction = 0.95f;
     
     if(_isDragging == NO){
+        if(_isAnimationEnabled == NO){
+            return;
+        }
+        
         // inertia
         _velPos = CGPointMake(_velPos.x*friction, _velPos.y*friction);
         

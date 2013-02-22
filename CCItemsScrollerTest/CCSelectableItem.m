@@ -17,9 +17,7 @@
 
 #import "CCSelectableItem.h"
 
-@implementation CCSelectableItem{
-    CGPoint _beginTouch;
-}
+@implementation CCSelectableItem
 
 -(id)initWithNormalColor:(ccColor4B)normalColor andSelectectedColor:(ccColor4B)selectedColor andWidth:(GLfloat)w andHeight:(GLfloat)h{
     self = [super initWithColor:normalColor width:w height:h];
